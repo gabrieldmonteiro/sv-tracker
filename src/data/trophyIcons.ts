@@ -1,6 +1,6 @@
 /**
  * Trophy id → official PlayStation trophy icon (240×240 PNG) bundled under `public/trophies/`.
- * Source: the PSN trophy list as published on PSNProfiles (game 5673). See README › Image credits.
+ * Source: the PSN trophy list as published on PSNProfiles (game 5673).
  */
 export const TROPHY_ICON_FILES: Readonly<Record<string, string>> = {
   'iridium-seal': 'iridium-seal.png',

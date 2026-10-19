@@ -1,9 +1,11 @@
 import { TROPHIES, TROPHY_BY_ID } from '@/data/trophies'
-import { emptyProgress, isIsoDate, isRecord, subtaskKey, type ProgressState } from './storage'
+import { emptyProgress, isIsoDate, isRecord, normalizeDate, subtaskKey, type ProgressState } from './storage'
 
 /** Identifies our files so unrelated JSON is rejected. */
 export const SAVE_FILE_FORMAT = 'stardew-valley-tracker-save'
 export const SAVE_FILE_VERSION = 1
+/** A full save is a few KB; anything far larger is not ours and is refused before it is read. */
+export const MAX_SAVE_FILE_BYTES = 256 * 1024
 
 export interface SaveFileTrophy {
   checked: boolean
@@ -20,7 +22,7 @@ export interface SaveFile {
   trophies: Record<string, SaveFileTrophy>
 }
 
-export type SaveFileError = 'invalid-json' | 'not-a-save' | 'unsupported-version' | 'invalid-data'
+export type SaveFileError = 'too-large' | 'invalid-json' | 'not-a-save' | 'unsupported-version' | 'invalid-data'
 
 export type ParseResult = { ok: true; state: ProgressState } | { ok: false; error: SaveFileError }
 
@@ -56,6 +58,7 @@ const isDateField = (value: unknown) => value === null || value === undefined ||
 
 /** Validates a file's text. Unknown trophy or step ids are ignored; anything malformed is rejected whole. */
 export function parseSaveFile(text: string): ParseResult {
+  if (text.length > MAX_SAVE_FILE_BYTES) return { ok: false, error: 'too-large' }
   let raw: unknown
   try {
     raw = JSON.parse(text)
@@ -80,7 +83,7 @@ export function parseSaveFile(text: string): ParseResult {
       if (checked && trophy.subtasks?.includes(subtaskId)) state.subtasks[subtaskKey(trophyId, subtaskId)] = true
     }
   }
-  if (isIsoDate(raw.createdAt)) state.createdAt = raw.createdAt
-  if (isIsoDate(raw.updatedAt)) state.updatedAt = raw.updatedAt
+  if (isIsoDate(raw.createdAt)) state.createdAt = normalizeDate(raw.createdAt)
+  if (isIsoDate(raw.updatedAt)) state.updatedAt = normalizeDate(raw.updatedAt)
   return { ok: true, state }
 }

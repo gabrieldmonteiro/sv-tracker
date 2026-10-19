@@ -80,6 +80,7 @@ export const ui: UIStrings = {
   importErrorVersion: 'Esta partida viene de una versión más nueva o no compatible de la app.',
   importErrorData: 'El archivo de partida está dañado o incompleto.',
   importErrorRead: 'No se pudo leer el archivo.',
+  importErrorTooLarge: 'El archivo es demasiado grande para ser una partida guardada.',
   importErrorKept: 'Tu progreso actual no ha cambiado.',
   importDone: 'Progreso importado del archivo.',
   ok: 'Aceptar',

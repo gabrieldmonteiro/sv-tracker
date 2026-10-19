@@ -139,6 +139,13 @@ export const WIKI_HOSTS = {
   es: 'https://es.stardewvalleywiki.com/',
 } as const
 
+/** Always an https link on the given wiki host; anything that would leave it falls back to the wiki home. */
 export function wikiUrl(host: string, title: string): string {
-  return host + encodeURIComponent(title.replace(/ /g, '_')).replace(/%2F/g, '/')
+  const url = host + encodeURIComponent(title.replace(/ /g, '_')).replace(/%2F/g, '/')
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'https:' && parsed.origin === new URL(host).origin ? url : host
+  } catch {
+    return host
+  }
 }

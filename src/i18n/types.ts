@@ -104,6 +104,7 @@ export interface UIStrings {
   importErrorVersion: string
   importErrorData: string
   importErrorRead: string
+  importErrorTooLarge: string
   importErrorKept: string
   importDone: string
   ok: string

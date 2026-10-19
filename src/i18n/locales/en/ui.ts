@@ -80,6 +80,7 @@ export const ui: UIStrings = {
   importErrorVersion: 'This save file comes from a newer or unsupported version of the app.',
   importErrorData: 'The save file is damaged or incomplete.',
   importErrorRead: 'The file could not be read.',
+  importErrorTooLarge: 'The file is too large to be a save file.',
   importErrorKept: 'Your current progress was not changed.',
   importDone: 'Progress imported from the file.',
   ok: 'OK',

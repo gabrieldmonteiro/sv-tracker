@@ -29,7 +29,7 @@ export const DICTIONARIES: Record<Language, Dictionary> = {
 }
 
 export function isLanguage(value: unknown): value is Language {
-  return typeof value === 'string' && value in DICTIONARIES
+  return typeof value === 'string' && Object.hasOwn(DICTIONARIES, value)
 }
 
 /** Replaces `{name}` placeholders with values. Unknown placeholders are left as-is. */

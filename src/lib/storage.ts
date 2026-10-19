@@ -39,9 +39,14 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/
+
 export function isIsoDate(value: unknown): value is string {
-  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value) && !Number.isNaN(Date.parse(value))
+  return typeof value === 'string' && ISO_DATE.test(value) && !Number.isNaN(Date.parse(value))
 }
+
+/** Stores dates in one canonical form, whatever offset or precision the source used. */
+export const normalizeDate = (value: string) => new Date(value).toISOString()
 
 /** Keeps only ids that still exist in the data, so renamed or removed entries never break the UI. */
 export function sanitizeProgress(raw: unknown): ProgressState | null {
@@ -55,8 +60,8 @@ export function sanitizeProgress(raw: unknown): ProgressState | null {
     const [trophyId, subtaskId] = key.split('/')
     if (TROPHY_BY_ID.get(trophyId)?.subtasks?.includes(subtaskId)) state.subtasks[key] = true
   }
-  if (isIsoDate(raw.createdAt)) state.createdAt = raw.createdAt
-  if (isIsoDate(raw.updatedAt)) state.updatedAt = raw.updatedAt
+  if (isIsoDate(raw.createdAt)) state.createdAt = normalizeDate(raw.createdAt)
+  if (isIsoDate(raw.updatedAt)) state.updatedAt = normalizeDate(raw.updatedAt)
   return state
 }
 

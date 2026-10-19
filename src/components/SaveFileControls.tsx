@@ -13,10 +13,17 @@ import {
 import { Button } from '@/components/ui/button'
 import { TROPHIES } from '@/data/trophies'
 import { useI18n } from '@/hooks/useLanguage'
-import { parseSaveFile, saveFileName, serializeSaveFile, type SaveFileError } from '@/lib/saveFile'
+import {
+  MAX_SAVE_FILE_BYTES,
+  parseSaveFile,
+  saveFileName,
+  serializeSaveFile,
+  type SaveFileError,
+} from '@/lib/saveFile'
 import type { ProgressState } from '@/lib/storage'
 
 const ERROR_KEY = {
+  'too-large': 'importErrorTooLarge',
   'invalid-json': 'importErrorInvalidJson',
   'not-a-save': 'importErrorNotSave',
   'unsupported-version': 'importErrorVersion',
@@ -57,6 +64,10 @@ export function SaveFileControls({ state, onImport }: Props) {
     event.target.value = ''
     if (!file) return
     setStatus('')
+    if (file.size > MAX_SAVE_FILE_BYTES) {
+      setError('too-large')
+      return
+    }
     let text: string
     try {
       text = await file.text()
