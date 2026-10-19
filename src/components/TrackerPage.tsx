@@ -79,7 +79,7 @@ export function TrackerPage() {
           {visible.length === 0 ? (
             <EmptyState onClear={() => setFilters(DEFAULT_FILTERS)} />
           ) : (
-            <ul className="grid gap-3" aria-label={t('filtersLabel')}>
+            <ul className="grid gap-3">
               {visible.map((trophy) => (
                 <li key={trophy.id}>
                   <TrophyCard
