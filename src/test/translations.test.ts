@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATEGORY_IDS, TROPHIES } from '@/data/trophies'
+import { CATEGORY_IDS, POLYCULTURE_CROPS, TROPHIES } from '@/data/trophies'
 import { ITEMS, SEED_IDS } from '@/data/items'
 import { APP_TITLE, DEFAULT_LANGUAGE, DICTIONARIES, LANGUAGES, format, type Language } from '@/i18n'
 
@@ -60,6 +60,9 @@ describe('translation completeness', () => {
         expect(Boolean(text.obtain), `${item.id}.obtain present in ${language} only`).toBe(
           Boolean(reference.items.items[item.id].obtain),
         )
+      }
+      for (const crop of POLYCULTURE_CROPS) {
+        expect(dict.trophies.polyculture.subtasks?.[crop], crop).toBe(dict.items.items[crop].name)
       }
       expect(Object.keys(dict.items.seeds).sort()).toEqual([...SEED_IDS].sort())
       for (const name of Object.values(dict.items.seeds)) expect(name.trim()).not.toBe('')
