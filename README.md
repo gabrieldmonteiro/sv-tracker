@@ -49,12 +49,12 @@ Then open **http://127.0.0.1:47321**. The dev server uses port `47321` on purpos
 
 ## Features
 
-- **Checklist** for all 41 base-game trophies in the guide (1 platinum + 40), in the guide's roadmap order.
+- **Checklist** for all 41 base-game trophies in the guide (1 platinum + 40), in the guide's roadmap order, each with its official trophy icon (in the list and the detail view).
 - **Progress**: overall percentage, done and remaining counts with a progress bar, plus a progress bar per category. Clicking a category filters the list.
 - **Detail view** per trophy: official description, how it unlocks, requirements, guide notes, dependencies and steps.
 - **Expandable steps** for complex trophies, such as the 28 Polyculture crops, 7 Stardrops, 12 Monster Slayer goals, Community Center rooms, Joja projects, Full House milestones, the 5 skills and the legendary fish. Each step is saved on its own.
 - **Dependency indicators** ("Depends on: …" with done/pending state; click one to open it), conflict warnings (Local Legend and Joja on the same save) and a counter for the platinum.
-- **Missable alerts**: a banner at the top, a badge and warning on each missable trophy, and a "Missable" filter. "Buggy", "Time-consuming" and "Collectible" badges follow the guide's tags.
+- **Missable alerts**: a banner at the top that can be minimized to a one-line reminder (and expanded again; the choice is remembered separately from progress and language), a badge and warning on each missable trophy, and a "Missable" filter. "Buggy", "Time-consuming" and "Collectible" badges follow the guide's tags.
 - **Filters**: all / done / pending / missable, by category, and search by name or description in the current language (case- and accent-insensitive).
 - **Auto-save** to `localStorage`, with a warning if storage is blocked, a save fails or the saved data is unreadable.
 - **Reset** with a confirmation dialog. Your language choice is kept.
@@ -68,6 +68,7 @@ src/
   data/
     types.ts              Trophy model (ids, grade, category, stage, flags, dependencies, subtasks)
     trophies.ts           The 41 trophies — language-neutral data only, stable ids
+    trophyIcons.ts        Trophy id → icon file in public/trophies/
   i18n/
     types.ts              Shapes of the UI strings and trophy texts
     index.ts              Dictionaries, language list, browser-language matching, {placeholder} formatting
@@ -85,13 +86,15 @@ src/
   components/             App UI (TrackerPage, TrophyCard, TrophyDetailDialog, FilterBar, …)
     ui/                   shadcn/ui primitives (Radix based)
   test/                   Vitest suites
+public/
+  trophies/               41 official trophy icons (240×240 PNG), one per trophy id
 ```
 
 Trophy data and translations are deliberately separate: `src/data/trophies.ts` only holds ids and structure, and every human-readable string lives in `src/i18n/locales/<language>/`. Trophy and subtask ids are stable, because they are the keys used for saved progress and translations. To add a language, copy one locale folder, translate it and register it in `src/i18n/index.ts`. The translation-completeness test will flag anything missing.
 
 ## Tests
 
-`npm test` runs 44 tests covering:
+`npm test` runs 92 tests covering:
 
 - progress calculation (overall, per category, subtasks, dependencies, platinum) and data integrity
 - persistence and restore, including corrupt data, unknown ids and blocked storage
@@ -99,6 +102,8 @@ Trophy data and translations are deliberately separate: `src/data/trophies.ts` o
 - language switching preserving progress (rendered app)
 - translation completeness: every UI key, category, trophy, requirement, note and subtask exists and is non-empty in all three languages, with matching placeholders
 - UI flows: check/uncheck, steps, detail view, empty state, reset confirmation, corrupt-data warning
+- missable alert minimize/expand: persisted under its own key, survives reloads, language switches and reset, never changes progress or language
+- trophy icons: every trophy maps to a bundled, distinct 240×240 PNG that exists in `public/trophies/`, and every list row and the detail view render it
 
 ## Stack
 
@@ -111,5 +116,9 @@ Vite, React, TypeScript, Tailwind CSS v4 and shadcn/ui (Radix primitives), with 
 - **Progress lives in one browser.** Clearing site data, private windows or switching browsers/devices starts fresh. There is no export/import or sync.
 - **Localized names.** The PT-BR and ES names and descriptions of the 40 regular trophies use the game's official localization (as published on its Steam achievement list, which uses the same in-game text). The platinum (Iridium Seal) has no published localized name there, so its PT-BR/ES names are translations. In-game item, place and monster names inside the notes and steps are translated to match the game where known, but were not checked one by one against the localized game.
 - **Guide-dependent.** Notes and tips reflect the guide (v1.5 era); later game patches may change details.
+
+## Image credits
+
+The trophy icons in `public/trophies/` are the official PlayStation trophy images for Stardew Valley (PS4, trophy list 5673), © ConcernedApe. They were downloaded from the trophy list as published on [PSNProfiles](https://psnprofiles.com/trophies/5673-stardew-valley) (`img.psnprofiles.com/trophy/l/5673/…`), the same list the guide links to, and are bundled locally so the app does not hotlink. They are used here only to identify each trophy.
 
 Not affiliated with ConcernedApe, Sony or PSNProfiles.

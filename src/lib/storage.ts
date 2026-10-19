@@ -3,6 +3,7 @@ import { isLanguage, type Language } from '@/i18n'
 
 export const PROGRESS_KEY = 'sv-tracker:progress'
 export const LANGUAGE_KEY = 'sv-tracker:language'
+export const MISSABLE_ALERT_KEY = 'sv-tracker:missable-alert'
 const PROGRESS_VERSION = 1
 
 export interface ProgressState {
@@ -100,6 +101,26 @@ export function saveLanguage(language: Language, storage: Storage | null = getSt
   if (!storage) return false
   try {
     storage.setItem(LANGUAGE_KEY, language)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export type AlertState = 'expanded' | 'minimized'
+
+export function loadAlertState(storage: Storage | null = getStorage()): AlertState {
+  try {
+    return storage?.getItem(MISSABLE_ALERT_KEY) === 'minimized' ? 'minimized' : 'expanded'
+  } catch {
+    return 'expanded'
+  }
+}
+
+export function saveAlertState(value: AlertState, storage: Storage | null = getStorage()): boolean {
+  if (!storage) return false
+  try {
+    storage.setItem(MISSABLE_ALERT_KEY, value)
     return true
   } catch {
     return false

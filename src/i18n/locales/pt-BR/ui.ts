@@ -43,6 +43,9 @@ export const ui: UIStrings = {
   missableAlertTitle: 'Troféus perdíveis',
   missableAlertBody:
     'Lenda Local e Joja Co. Membro do Ano são os únicos perdíveis, e um bloqueia o outro no mesmo save. O guia recomenda duas jogatinas ou fazer backup do save antes de entrar na Joja.',
+  missableAlertCollapsed: 'Perdíveis: {first} e {second} se excluem',
+  missableAlertMinimize: 'Minimizar',
+  missableAlertExpand: 'Mostrar detalhes',
   conflictAlert: 'Entrar na Joja transforma o Centro Comunitário em depósito para sempre naquele save.',
   buggy: 'Com bug',
   buggyHint: 'O guia relata que este troféu pode não desbloquear — leia as notas.',

@@ -1,7 +1,8 @@
-import { CircleAlert, TriangleAlert, X } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronDown, ChevronUp, CircleAlert, TriangleAlert, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/hooks/useLanguage'
-import type { LoadStatus } from '@/lib/storage'
+import { loadAlertState, saveAlertState, type LoadStatus } from '@/lib/storage'
 
 export function StorageNotice({
   loadStatus,
@@ -41,7 +42,36 @@ export function StorageNotice({
 }
 
 export function MissableAlert({ onShow }: { onShow: () => void }) {
-  const { t } = useI18n()
+  const { t, dict } = useI18n()
+  const [minimized, setMinimized] = useState(() => loadAlertState() === 'minimized')
+
+  const toggle = () => {
+    const next = !minimized
+    setMinimized(next)
+    saveAlertState(next ? 'minimized' : 'expanded')
+  }
+
+  if (minimized) {
+    const summary = t('missableAlertCollapsed', {
+      first: dict.trophies['local-legend']?.name ?? '',
+      second: dict.trophies['joja-member']?.name ?? '',
+    })
+    return (
+      <aside
+        aria-label={t('missableAlertTitle')}
+        className="flex items-center gap-2 rounded-md border-2 border-destructive/40 bg-destructive/5 px-3 py-1.5 text-sm"
+      >
+        <TriangleAlert className="size-4 shrink-0 text-destructive" aria-hidden="true" />
+        <p title={summary} className="min-w-0 flex-1 truncate font-medium text-destructive">
+          {summary}
+        </p>
+        <Button type="button" variant="ghost" size="sm" onClick={toggle} aria-expanded={false} className="shrink-0">
+          <ChevronDown aria-hidden="true" />
+          {t('missableAlertExpand')}
+        </Button>
+      </aside>
+    )
+  }
 
   return (
     <aside
@@ -55,9 +85,15 @@ export function MissableAlert({ onShow }: { onShow: () => void }) {
         </h2>
         <p className="mt-0.5 text-foreground/80">{t('missableAlertBody')}</p>
       </div>
-      <Button type="button" variant="outline" size="sm" onClick={onShow} className="self-start border-2">
-        {t('filterMissable')}
-      </Button>
+      <div className="flex shrink-0 gap-2 self-start">
+        <Button type="button" variant="outline" size="sm" onClick={onShow} className="border-2">
+          {t('filterMissable')}
+        </Button>
+        <Button type="button" variant="ghost" size="sm" onClick={toggle} aria-expanded={true}>
+          <ChevronUp aria-hidden="true" />
+          {t('missableAlertMinimize')}
+        </Button>
+      </div>
     </aside>
   )
 }

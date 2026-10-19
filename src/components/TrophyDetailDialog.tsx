@@ -10,6 +10,7 @@ import { DependencyIndicator } from './DependencyIndicator'
 import { GradeIcon } from './GradeIcon'
 import { SubtaskList } from './SubtaskList'
 import { TrophyBadges } from './TrophyBadges'
+import { TrophyIcon } from './TrophyIcon'
 
 interface Props {
   trophyId: string | null
@@ -34,11 +35,16 @@ export function TrophyDetailDialog({ trophyId, state, onClose, onOpen, onToggle,
           className="flex max-h-[min(90dvh,48rem)] flex-col gap-0 overflow-hidden rounded-md border-2 border-border bg-card p-0 sm:max-w-2xl"
         >
           <DialogHeader className="border-b-2 border-border p-5 pr-12">
-            <div className="flex items-start gap-2">
-              <GradeIcon grade={trophy.grade} className="mt-1" />
-              <DialogTitle className="font-heading text-xl leading-tight">{text.name}</DialogTitle>
+            <div className="flex items-start gap-3">
+              <TrophyIcon trophy={trophy} className="size-16" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start gap-2">
+                  <GradeIcon grade={trophy.grade} className="mt-1" />
+                  <DialogTitle className="font-heading text-xl leading-tight">{text.name}</DialogTitle>
+                </div>
+                <DialogDescription className="mt-1 text-sm text-muted-foreground">{text.description}</DialogDescription>
+              </div>
             </div>
-            <DialogDescription className="text-sm text-muted-foreground">{text.description}</DialogDescription>
             <div className="pt-2">
               <TrophyBadges trophy={trophy} />
             </div>

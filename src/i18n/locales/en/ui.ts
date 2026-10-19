@@ -43,6 +43,9 @@ export const ui: UIStrings = {
   missableAlertTitle: 'Missable trophies',
   missableAlertBody:
     'Local Legend and Joja Co. Member Of The Year are the only missables, and they lock each other out on one save. The guide recommends two playthroughs, or backing up your save before joining Joja.',
+  missableAlertCollapsed: 'Missable: {first} and {second} lock each other out',
+  missableAlertMinimize: 'Minimize',
+  missableAlertExpand: 'Show details',
   conflictAlert: 'Joining Joja permanently turns the Community Center into a warehouse on that save.',
   buggy: 'Buggy',
   buggyHint: 'The guide reports this trophy may fail to unlock — read the notes.',

@@ -1,8 +1,8 @@
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from '@/App'
-import { LANGUAGE_KEY, PROGRESS_KEY } from '@/lib/storage'
+import { LANGUAGE_KEY, MISSABLE_ALERT_KEY, PROGRESS_KEY } from '@/lib/storage'
 
 function setup(language = 'en') {
   localStorage.setItem(LANGUAGE_KEY, language)
@@ -97,6 +97,62 @@ describe('App', () => {
     expect(screen.getByText('0 of 41 trophies')).toBeInTheDocument()
     expect(savedProgress().trophies).toEqual({})
     expect(localStorage.getItem(LANGUAGE_KEY)).toBe('en')
+  })
+
+  it('minimizes the missable alert, persists it and leaves progress and language alone', async () => {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, trophies: { greenhorn: true }, subtasks: {} }))
+    const user = setup('en')
+    const progressBefore = localStorage.getItem(PROGRESS_KEY)
+
+    await user.click(screen.getByRole('button', { name: 'Minimize' }))
+    const collapsed = screen.getByRole('complementary', { name: 'Missable trophies' })
+    expect(collapsed).toHaveTextContent('Missable: Local Legend and Joja Co. Member Of The Year lock each other out')
+    expect(screen.queryByRole('heading', { name: 'Missable trophies' })).not.toBeInTheDocument()
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('minimized')
+    expect(localStorage.getItem(PROGRESS_KEY)).toBe(progressBefore)
+    expect(localStorage.getItem(LANGUAGE_KEY)).toBe('en')
+
+    await user.selectOptions(screen.getByLabelText('Language'), 'pt-BR')
+    expect(screen.getByRole('button', { name: 'Mostrar detalhes' })).toBeInTheDocument()
+    expect(screen.getByText('Perdíveis: Lenda Local e Joja Co. Membro do Ano se excluem')).toBeInTheDocument()
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('minimized')
+
+    cleanup()
+    setup('es')
+    expect(screen.getByRole('button', { name: 'Mostrar detalles' })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Marcar «Principiante» como pendiente' })).toBeChecked()
+
+    await user.click(screen.getByRole('button', { name: 'Mostrar detalles' }))
+    expect(screen.getByRole('heading', { name: 'Trofeos perdibles' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Minimizar' })).toBeInTheDocument()
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('expanded')
+    expect(localStorage.getItem(PROGRESS_KEY)).toBe(progressBefore)
+  })
+
+  it('reset keeps the minimized alert preference', async () => {
+    localStorage.setItem(MISSABLE_ALERT_KEY, 'minimized')
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, trophies: { greenhorn: true }, subtasks: {} }))
+    const user = setup()
+    await user.click(screen.getByRole('button', { name: 'Reset progress' }))
+    await user.click(await screen.findByRole('button', { name: 'Yes, reset' }))
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('minimized')
+    expect(screen.getByRole('button', { name: 'Show details' })).toBeInTheDocument()
+  })
+
+  it('shows the official icon on every trophy row and in the detail view', async () => {
+    const user = setup()
+    const cards = screen.getAllByRole('article')
+    expect(cards).toHaveLength(41)
+    for (const card of cards) {
+      const img = card.querySelector('img[data-trophy-icon]')
+      expect(img).not.toBeNull()
+      expect(img?.getAttribute('src')).toBe(`/trophies/${img?.getAttribute('data-trophy-icon')}.png`)
+    }
+
+    const platinum = screen.getByRole('article', { name: 'Iridium Seal' })
+    await user.click(within(platinum).getByRole('button', { name: /Details/ }))
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog.querySelector('img[data-trophy-icon="iridium-seal"]')).toHaveAttribute('src', '/trophies/iridium-seal.png')
   })
 
   it('warns when saved data is corrupt', () => {

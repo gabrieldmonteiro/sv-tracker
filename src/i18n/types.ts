@@ -55,6 +55,9 @@ export interface UIStrings {
   missable: string
   missableAlertTitle: string
   missableAlertBody: string
+  missableAlertCollapsed: string
+  missableAlertMinimize: string
+  missableAlertExpand: string
   conflictAlert: string
   buggy: string
   buggyHint: string

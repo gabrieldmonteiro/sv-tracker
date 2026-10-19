@@ -11,6 +11,7 @@ import { DependencyIndicator } from './DependencyIndicator'
 import { GradeIcon } from './GradeIcon'
 import { SubtaskList } from './SubtaskList'
 import { TrophyBadges } from './TrophyBadges'
+import { TrophyIcon } from './TrophyIcon'
 
 interface Props {
   trophy: TrophyDef
@@ -41,8 +42,9 @@ export function TrophyCard({ trophy, state, onToggle, onToggleSubtask, onOpenDet
           checked={done}
           onCheckedChange={() => onToggle(trophy.id)}
           aria-label={done ? t('markPending', { name }) : t('markDone', { name })}
-          className="mt-0.5 size-6 rounded-sm border-2 bg-background [&_svg]:size-4"
+          className="mt-3 size-6 rounded-sm border-2 bg-background [&_svg]:size-4"
         />
+        <TrophyIcon trophy={trophy} done={done} className="size-12 sm:size-14" />
         <div className="min-w-0 flex-1">
           <div className="flex items-start gap-2">
             <GradeIcon grade={trophy.grade} className="mt-px" />

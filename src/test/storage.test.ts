@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   LANGUAGE_KEY,
+  MISSABLE_ALERT_KEY,
   PROGRESS_KEY,
   emptyProgress,
+  loadAlertState,
   loadLanguage,
   loadProgress,
+  saveAlertState,
   saveLanguage,
   saveProgress,
   subtaskKey,
@@ -72,5 +75,33 @@ describe('progress persistence', () => {
     expect(loadProgress().state.trophies).toEqual({ greenhorn: true })
     localStorage.setItem(LANGUAGE_KEY, 'klingon')
     expect(loadLanguage()).toBeNull()
+  })
+})
+
+describe('missable alert preference', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('defaults to expanded and ignores unknown values', () => {
+    expect(loadAlertState()).toBe('expanded')
+    localStorage.setItem(MISSABLE_ALERT_KEY, 'weird')
+    expect(loadAlertState()).toBe('expanded')
+    expect(loadAlertState(null)).toBe('expanded')
+  })
+
+  it('round-trips under its own key without touching progress or language', () => {
+    const progress: ProgressState = { trophies: { greenhorn: true }, subtasks: {} }
+    saveProgress(progress)
+    saveLanguage('es')
+    const before = localStorage.getItem(PROGRESS_KEY)
+
+    expect(saveAlertState('minimized')).toBe(true)
+    expect(loadAlertState()).toBe('minimized')
+    expect(localStorage.getItem(PROGRESS_KEY)).toBe(before)
+    expect(localStorage.getItem(LANGUAGE_KEY)).toBe('es')
+    expect(loadProgress().state).toEqual(progress)
+
+    saveAlertState('expanded')
+    expect(loadAlertState()).toBe('expanded')
+    expect(saveAlertState('minimized', null)).toBe(false)
   })
 })
