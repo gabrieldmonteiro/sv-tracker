@@ -67,7 +67,7 @@ export function MissableAlert({ onShow }: { onShow: () => void }) {
         </p>
         <Button type="button" variant="ghost" size="sm" onClick={toggle} aria-expanded={false} className="shrink-0">
           <ChevronDown aria-hidden="true" />
-          {t('missableAlertExpand')}
+          <span className="max-sm:sr-only">{t('missableAlertExpand')}</span>
         </Button>
       </aside>
     )
