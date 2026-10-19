@@ -42,7 +42,6 @@ export const ui: UIStrings = {
   missableAlertBody:
     'Leyenda local y Miembro estrella de Joja Co. son los únicos perdibles, y se bloquean entre sí en una misma partida. La guía recomienda dos partidas o hacer una copia de seguridad antes de unirte a Joja.',
   missableAlertClose: 'Cerrar aviso',
-  missableAlertReopen: 'Mostrar aviso de perdibles',
   conflictAlert: 'Unirte a Joja convierte el centro cívico en un almacén para siempre en esa partida.',
   buggy: 'Con fallos',
   buggyHint: 'La guía indica que este trofeo puede no desbloquearse: lee las notas.',

@@ -55,7 +55,7 @@ Then open **http://127.0.0.1:47321**. The dev server uses port `47321` on purpos
 - **Expandable steps** for complex trophies, such as the 28 Polyculture crops, 7 Stardrops, 12 Monster Slayer goals, Community Center rooms, Joja projects, Full House milestones, the 5 skills and the legendary fish. Each step is saved on its own.
 - **Dependency indicators** ("Depends on: …" with done/pending state; click one to open it), conflict warnings (Local Legend and Joja on the same save) and a counter for the platinum.
 - **Item mentions**: every in-game item named in a trophy (description, requirements, steps or notes) shows as a small chip with its official sprite. Tap a chip to see how to get it (summarized from the Stardew Valley Wiki) and a link to the wiki page in your language. The detail view lists all of a trophy's items with their obtain lines; collection trophies (Polyculture crops, Dwarf Scrolls, legendary fish…) show the sprite on each step.
-- **Missable alerts**: a banner at the top with a close button (the choice is remembered separately from progress and language; a small warning button in the header brings it back), a badge and warning on each missable trophy, and a "Missable" filter. "Buggy", "Time-consuming" and "Collectible" badges follow the guide's tags.
+- **Missable alerts**: a banner at the top with a close button (closing removes it, and the choice is remembered separately from progress and language, so a reload does not bring it back), a badge and warning on each missable trophy, and a "Missable" filter. "Buggy", "Time-consuming" and "Collectible" badges follow the guide's tags.
 - **Filters**: all / done / pending / missable, by category, and search by name or description in the current language (case- and accent-insensitive).
 - **Auto-save** to `localStorage`, with a warning if storage is blocked, a save fails or the saved data is unreadable.
 - **Reset** with a confirmation dialog. Your language choice is kept.
@@ -115,7 +115,7 @@ Trophy data and translations are deliberately separate: `src/data/trophies.ts` o
 
 ## Tests
 
-`npm test` runs 217 tests covering:
+`npm test` runs 218 tests covering:
 
 - progress calculation (overall, per category, subtasks, dependencies, platinum) and data integrity
 - persistence and restore, including corrupt data, unknown ids and blocked storage
@@ -124,7 +124,7 @@ Trophy data and translations are deliberately separate: `src/data/trophies.ts` o
 - translation completeness: every UI key, category, trophy, requirement, note and subtask exists and is non-empty in all three languages, with matching placeholders
 - UI flows: check/uncheck, steps, detail view, empty state, reset confirmation, corrupt-data warning
 - save files: the export lists every trophy and step plus both dates and no language; `createdAt` stays fixed while `updatedAt` moves; import restores checks and both dates only after confirmation; broken, unrelated or malformed files show an error and leave progress and language untouched
-- missable alert close/reopen: persisted under its own key, survives reloads, language switches and reset, never changes progress or language
+- missable alert close: persisted under its own key, survives reloads, language switches and reset, adds no header control, never changes progress or language
 - item mentions: every mentioned item exists, has a bundled PNG sprite, a name and wiki page in all three languages, and an obtain line (or growing facts); chips, step sprites and the detail-view list render it
 - header and defaults: untranslated "Stardew Valley Tracker" title right after the chicken sprite, no subtitle, chicken favicon, and Portuguese on a fresh visit
 - trophy icons: every trophy maps to a bundled, distinct 240×240 PNG that exists in `public/trophies/`, and every list row and the detail view render it

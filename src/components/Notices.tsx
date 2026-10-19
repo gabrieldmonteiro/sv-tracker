@@ -72,20 +72,3 @@ export function MissableAlert({ onShow, onClose }: { onShow: () => void; onClose
     </aside>
   )
 }
-
-export function ReopenMissableAlert({ onOpen }: { onOpen: () => void }) {
-  const { t } = useI18n()
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      onClick={onOpen}
-      title={t('missableAlertReopen')}
-      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-    >
-      <TriangleAlert aria-hidden="true" />
-      <span className="max-sm:sr-only">{t('missableAlertReopen')}</span>
-    </Button>
-  )
-}

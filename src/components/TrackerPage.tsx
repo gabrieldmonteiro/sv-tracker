@@ -10,7 +10,7 @@ import { CategoryProgress } from './CategoryProgress'
 import { EmptyState } from './EmptyState'
 import { FilterBar } from './FilterBar'
 import { LanguageSelector } from './LanguageSelector'
-import { MissableAlert, ReopenMissableAlert, StorageNotice } from './Notices'
+import { MissableAlert, StorageNotice } from './Notices'
 import { OverallProgress } from './ProgressSummary'
 import { ResetDialog } from './ResetDialog'
 import { Roadmap } from './Roadmap'
@@ -25,10 +25,10 @@ export function TrackerPage() {
   const { state, loadStatus, saveFailed, toggleTrophy, toggleSubtask, reset, replace, dismissNotice } = useProgress()
   const [filters, setFilters] = useState<TrophyFilters>(DEFAULT_FILTERS)
   const [openId, setOpenId] = useState<string | null>(null)
-  const [alertClosed, setAlertClosedState] = useState(() => loadAlertState() === 'closed')
-  const setAlertClosed = useCallback((closed: boolean) => {
-    setAlertClosedState(closed)
-    saveAlertState(closed ? 'closed' : 'open')
+  const [alertClosed, setAlertClosed] = useState(() => loadAlertState() === 'closed')
+  const closeAlert = useCallback(() => {
+    setAlertClosed(true)
+    saveAlertState('closed')
   }, [])
 
   const overall = useMemo(() => overallProgress(TROPHIES, state), [state])
@@ -67,7 +67,6 @@ export function TrackerPage() {
             {APP_TITLE}
           </h1>
           <div className="flex flex-wrap items-center gap-3">
-            {alertClosed && <ReopenMissableAlert onOpen={() => setAlertClosed(false)} />}
             <LanguageSelector />
             <div className="flex flex-wrap items-center gap-2">
               <SaveFileControls state={state} onImport={replace} />
@@ -93,7 +92,7 @@ export function TrackerPage() {
           {!alertClosed && (
             <MissableAlert
               onShow={() => setFilters({ ...DEFAULT_FILTERS, status: 'missable' })}
-              onClose={() => setAlertClosed(true)}
+              onClose={closeAlert}
             />
           )}
           <FilterBar filters={filters} counts={counts} onChange={setFilters} />

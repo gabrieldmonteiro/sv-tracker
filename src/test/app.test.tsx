@@ -112,20 +112,34 @@ describe('App', () => {
     expect(localStorage.getItem(LANGUAGE_KEY)).toBe('en')
 
     await user.selectOptions(screen.getByLabelText('Language'), 'pt-BR')
-    expect(screen.getByRole('button', { name: 'Mostrar aviso de perdíveis' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Troféus perdíveis' })).not.toBeInTheDocument()
     expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('closed')
 
     cleanup()
     setup('es')
     expect(screen.queryByRole('heading', { name: 'Trofeos perdibles' })).not.toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Marcar «Principiante» como pendiente' })).toBeChecked()
-
-    await user.click(screen.getByRole('button', { name: 'Mostrar aviso de perdibles' }))
-    expect(screen.getByRole('heading', { name: 'Trofeos perdibles' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Cerrar aviso' })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Mostrar aviso de perdibles' })).not.toBeInTheDocument()
-    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('open')
     expect(localStorage.getItem(PROGRESS_KEY)).toBe(progressBefore)
+  })
+
+  it('adds no header control when the alert is closed', async () => {
+    const user = setup('pt-BR')
+    const headerButtons = () =>
+      within(screen.getByRole('banner'))
+        .getAllByRole('button')
+        .map((button) => button.textContent)
+    const before = headerButtons()
+    expect(before).toEqual(['Exportar save', 'Importar save', 'Redefinir progresso'])
+
+    await user.click(screen.getByRole('button', { name: 'Fechar aviso' }))
+    expect(screen.queryByRole('heading', { name: 'Troféus perdíveis' })).not.toBeInTheDocument()
+    expect(headerButtons()).toEqual(before)
+    expect(screen.queryByText(/Mostrar aviso/)).not.toBeInTheDocument()
+
+    cleanup()
+    setup('pt-BR')
+    expect(screen.queryByRole('heading', { name: 'Troféus perdíveis' })).not.toBeInTheDocument()
+    expect(headerButtons()).toEqual(before)
   })
 
   it('reset keeps the closed alert preference', async () => {
@@ -135,7 +149,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Reset progress' }))
     await user.click(await screen.findByRole('button', { name: 'Yes, reset' }))
     expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('closed')
-    expect(screen.getByRole('button', { name: 'Show missable warning' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Missable trophies' })).not.toBeInTheDocument()
   })
 
   it('starts in Portuguese on a fresh visit, but a saved choice wins', () => {
