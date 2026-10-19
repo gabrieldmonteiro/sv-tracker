@@ -59,6 +59,21 @@ Then open **http://127.0.0.1:47321**. The dev server uses port `47321` on purpos
 - **Filters**: all / done / pending / missable, by category, and search by name or description in the current language (case- and accent-insensitive).
 - **Auto-save** to `localStorage`, with a warning if storage is blocked, a save fails or the saved data is unreadable.
 - **Reset** with a confirmation dialog. Your language choice is kept.
+- **Export / import save**: next to Reset, "Export save" downloads `stardew-valley-tracker-YYYY-MM-DD.json` and "Import save" opens a file picker. Importing shows a summary and asks for confirmation before replacing progress. A broken or unrelated file shows an error and nothing changes. The file holds only checklist progress: every trophy and step id with its checked state, plus `createdAt` (set the first time progress is saved, never changed after) and `updatedAt` (moves on every check change). Importing keeps the file's own dates. Language and the missable-alert state are not part of the file.
+
+  ```json
+  {
+    "format": "stardew-valley-tracker-save",
+    "version": 1,
+    "createdAt": "2026-03-01T09:15:00.000Z",
+    "updatedAt": "2026-04-12T18:40:30.000Z",
+    "trophies": {
+      "greenhorn": { "checked": true },
+      "gourmet-chef": { "checked": false, "subtasks": { "kitchen": true, "queen-of-sauce": false, "…": false } },
+      "…": { "checked": false }
+    }
+  }
+  ```
 - **Languages**: PT-BR, EN and ES for all UI text and all trophy data. The app starts in Portuguese (Brasil) on a fresh visit; a language you pick is remembered and wins afterwards, and switching it never touches progress. The title, “Stardew Valley Tracker”, is the same in every language.
 - **Responsive** layout for desktop (sidebar + list) and mobile (stacked), keyboard accessible, with empty and error states.
 
@@ -81,6 +96,7 @@ src/
       es/ ui.ts trophies.ts items.ts
   lib/
     storage.ts            localStorage load/save with validation and versioning
+    saveFile.ts           Export/import .json save files (build, serialize, validate)
     progress.ts           Overall, per-category, subtask and dependency calculations
     filters.ts            Status/category filters and accent-insensitive search
   hooks/
@@ -99,7 +115,7 @@ Trophy data and translations are deliberately separate: `src/data/trophies.ts` o
 
 ## Tests
 
-`npm test` runs 196 tests covering:
+`npm test` runs 217 tests covering:
 
 - progress calculation (overall, per category, subtasks, dependencies, platinum) and data integrity
 - persistence and restore, including corrupt data, unknown ids and blocked storage
@@ -107,6 +123,7 @@ Trophy data and translations are deliberately separate: `src/data/trophies.ts` o
 - language switching preserving progress (rendered app)
 - translation completeness: every UI key, category, trophy, requirement, note and subtask exists and is non-empty in all three languages, with matching placeholders
 - UI flows: check/uncheck, steps, detail view, empty state, reset confirmation, corrupt-data warning
+- save files: the export lists every trophy and step plus both dates and no language; `createdAt` stays fixed while `updatedAt` moves; import restores checks and both dates only after confirmation; broken, unrelated or malformed files show an error and leave progress and language untouched
 - missable alert close/reopen: persisted under its own key, survives reloads, language switches and reset, never changes progress or language
 - item mentions: every mentioned item exists, has a bundled PNG sprite, a name and wiki page in all three languages, and an obtain line (or growing facts); chips, step sprites and the detail-view list render it
 - header and defaults: untranslated "Stardew Valley Tracker" title right after the chicken sprite, no subtitle, chicken favicon, and Portuguese on a fresh visit

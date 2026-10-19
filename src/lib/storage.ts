@@ -11,6 +11,10 @@ export interface ProgressState {
   trophies: Record<string, true>
   /** `${trophyId}/${subtaskId}` → done. */
   subtasks: Record<string, true>
+  /** ISO time of the first saved check; never changes afterwards. */
+  createdAt?: string
+  /** ISO time of the last check change. */
+  updatedAt?: string
 }
 
 export type LoadStatus = 'ok' | 'empty' | 'corrupt' | 'unavailable'
@@ -31,8 +35,12 @@ export function getStorage(): Storage | null {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+export function isIsoDate(value: unknown): value is string {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value) && !Number.isNaN(Date.parse(value))
 }
 
 /** Keeps only ids that still exist in the data, so renamed or removed entries never break the UI. */
@@ -47,6 +55,8 @@ export function sanitizeProgress(raw: unknown): ProgressState | null {
     const [trophyId, subtaskId] = key.split('/')
     if (TROPHY_BY_ID.get(trophyId)?.subtasks?.includes(subtaskId)) state.subtasks[key] = true
   }
+  if (isIsoDate(raw.createdAt)) state.createdAt = raw.createdAt
+  if (isIsoDate(raw.updatedAt)) state.updatedAt = raw.updatedAt
   return state
 }
 

@@ -14,6 +14,7 @@ import { MissableAlert, ReopenMissableAlert, StorageNotice } from './Notices'
 import { OverallProgress } from './ProgressSummary'
 import { ResetDialog } from './ResetDialog'
 import { Roadmap } from './Roadmap'
+import { SaveFileControls } from './SaveFileControls'
 import { TrophyCard } from './TrophyCard'
 import { TrophyDetailDialog } from './TrophyDetailDialog'
 
@@ -21,7 +22,7 @@ const SORTED_TROPHIES = [...TROPHIES].sort((a, b) => a.order - b.order)
 
 export function TrackerPage() {
   const { t, dict } = useI18n()
-  const { state, loadStatus, saveFailed, toggleTrophy, toggleSubtask, reset, dismissNotice } = useProgress()
+  const { state, loadStatus, saveFailed, toggleTrophy, toggleSubtask, reset, replace, dismissNotice } = useProgress()
   const [filters, setFilters] = useState<TrophyFilters>(DEFAULT_FILTERS)
   const [openId, setOpenId] = useState<string | null>(null)
   const [alertClosed, setAlertClosedState] = useState(() => loadAlertState() === 'closed')
@@ -68,7 +69,10 @@ export function TrackerPage() {
           <div className="flex flex-wrap items-center gap-3">
             {alertClosed && <ReopenMissableAlert onOpen={() => setAlertClosed(false)} />}
             <LanguageSelector />
-            <ResetDialog onConfirm={reset} disabled={!hasProgress} />
+            <div className="flex flex-wrap items-center gap-2">
+              <SaveFileControls state={state} onImport={replace} />
+              <ResetDialog onConfirm={reset} disabled={!hasProgress} />
+            </div>
           </div>
         </div>
       </header>

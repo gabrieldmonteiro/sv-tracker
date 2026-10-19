@@ -1,6 +1,6 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
 import { LANGUAGE_KEY, MISSABLE_ALERT_KEY, PROGRESS_KEY } from '@/lib/storage'
 
@@ -216,6 +216,113 @@ describe('App', () => {
     await user.click(within(platinum).getByRole('button', { name: /Details/ }))
     const dialog = await screen.findByRole('dialog')
     expect(dialog.querySelector('img[data-trophy-icon="iridium-seal"]')).toHaveAttribute('src', '/trophies/iridium-seal.png')
+  })
+
+  describe('save file export and import', () => {
+    const CREATED = '2026-03-01T09:15:00.000Z'
+    const UPDATED = '2026-04-12T18:40:30.000Z'
+    let blobs: Blob[]
+
+    beforeEach(() => {
+      blobs = []
+      URL.createObjectURL = vi.fn((blob: Blob) => {
+        blobs.push(blob)
+        return 'blob:save'
+      })
+      URL.revokeObjectURL = vi.fn()
+      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    })
+    afterEach(() => vi.restoreAllMocks())
+
+    const fileWith = (body: unknown) =>
+      new File([typeof body === 'string' ? body : JSON.stringify(body)], 'save.json', { type: 'application/json' })
+
+    it('keeps createdAt stable while updatedAt moves with each check', async () => {
+      const user = setup()
+      await user.click(screen.getByRole('checkbox', { name: 'Mark “Greenhorn” as done' }))
+      const first = savedProgress()
+      expect(first.createdAt).toBe(first.updatedAt)
+      await new Promise((resolve) => setTimeout(resolve, 5))
+      await user.click(screen.getByRole('checkbox', { name: 'Mark “Cowpoke” as done' }))
+      const second = savedProgress()
+      expect(second.createdAt).toBe(first.createdAt)
+      expect(Date.parse(second.updatedAt)).toBeGreaterThan(Date.parse(first.updatedAt))
+    })
+
+    it('exports the full progress with both dates and leaves the language alone', async () => {
+      localStorage.setItem(
+        PROGRESS_KEY,
+        JSON.stringify({ version: 1, trophies: { cowpoke: true }, subtasks: { 'gourmet-chef/gus': true }, createdAt: CREATED, updatedAt: UPDATED }),
+      )
+      const user = setup('pt-BR')
+      await user.click(screen.getByRole('button', { name: 'Exportar save' }))
+      expect(blobs).toHaveLength(1)
+      const file = JSON.parse(await blobs[0].text())
+      expect(file).toMatchObject({ format: 'stardew-valley-tracker-save', version: 1, createdAt: CREATED, updatedAt: UPDATED })
+      expect(Object.keys(file.trophies)).toHaveLength(41)
+      expect(file.trophies.cowpoke).toEqual({ checked: true })
+      expect(file.trophies['gourmet-chef'].subtasks).toMatchObject({ gus: true, kitchen: false })
+      expect(file).not.toHaveProperty('language')
+      expect(localStorage.getItem(LANGUAGE_KEY)).toBe('pt-BR')
+    })
+
+    it('imports after confirmation, restoring checks and both dates without changing the language', async () => {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, trophies: { greenhorn: true }, subtasks: {} }))
+      const user = setup('es')
+      await user.upload(
+        screen.getByTestId('import-file'),
+        fileWith({
+          format: 'stardew-valley-tracker-save',
+          version: 1,
+          createdAt: CREATED,
+          updatedAt: UPDATED,
+          trophies: { greenhorn: { checked: false }, cowpoke: { checked: true }, 'gourmet-chef': { checked: false, subtasks: { gus: true } } },
+        }),
+      )
+      const dialog = await screen.findByRole('alertdialog')
+      expect(dialog).toHaveTextContent('¿Sustituir tu progreso por este archivo?')
+      expect(savedProgress().trophies).toEqual({ greenhorn: true })
+
+      await user.click(within(dialog).getByRole('button', { name: 'Sí, importar' }))
+      expect(savedProgress()).toEqual({
+        version: 1,
+        trophies: { cowpoke: true },
+        subtasks: { 'gourmet-chef/gus': true },
+        createdAt: CREATED,
+        updatedAt: UPDATED,
+      })
+      expect(screen.getByRole('checkbox', { name: 'Marcar «Vaquero» como pendiente' })).toBeChecked()
+      expect(localStorage.getItem(LANGUAGE_KEY)).toBe('es')
+      expect(document.documentElement.lang).toBe('es')
+    })
+
+    it('cancelling the import keeps current progress', async () => {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, trophies: { greenhorn: true }, subtasks: {} }))
+      const user = setup()
+      await user.upload(
+        screen.getByTestId('import-file'),
+        fileWith({ format: 'stardew-valley-tracker-save', version: 1, createdAt: null, updatedAt: null, trophies: {} }),
+      )
+      await user.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Cancel' }))
+      expect(savedProgress().trophies).toEqual({ greenhorn: true })
+    })
+
+    it.each([
+      ['a broken file', '{not json'],
+      ['an unrelated JSON file', { name: 'package', version: '1.0.0' }],
+    ])('shows an error for %s and does not wipe progress', async (_label, body) => {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, trophies: { greenhorn: true }, subtasks: {} }))
+      const before = localStorage.getItem(PROGRESS_KEY)
+      const user = setup('pt-BR')
+      await user.upload(screen.getByTestId('import-file'), fileWith(body))
+      const dialog = await screen.findByRole('alertdialog')
+      expect(dialog).toHaveTextContent('Não foi possível importar este arquivo')
+      expect(dialog).toHaveTextContent('Seu progresso atual não foi alterado.')
+      await user.click(within(dialog).getByRole('button', { name: 'OK' }))
+      expect(localStorage.getItem(PROGRESS_KEY)).toBe(before)
+      expect(screen.getByRole('checkbox', { name: 'Marcar “Dedo Verde” como pendente' })).toBeChecked()
+      expect(localStorage.getItem(LANGUAGE_KEY)).toBe('pt-BR')
+    })
   })
 
   it('warns when saved data is corrupt', () => {

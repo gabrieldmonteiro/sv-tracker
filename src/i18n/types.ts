@@ -92,6 +92,22 @@ export interface UIStrings {
   playthroughs: string
   hours: string
   reset: string
+  exportSave: string
+  importSave: string
+  importTitle: string
+  importBody: string
+  importDates: string
+  dateUnknown: string
+  confirmImport: string
+  importErrorTitle: string
+  importErrorInvalidJson: string
+  importErrorNotSave: string
+  importErrorVersion: string
+  importErrorData: string
+  importErrorRead: string
+  importErrorKept: string
+  importDone: string
+  ok: string
   resetTitle: string
   resetBody: string
   cancel: string
