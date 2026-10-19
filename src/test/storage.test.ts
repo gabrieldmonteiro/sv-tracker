@@ -81,11 +81,11 @@ describe('progress persistence', () => {
 describe('missable alert preference', () => {
   beforeEach(() => localStorage.clear())
 
-  it('defaults to expanded and ignores unknown values', () => {
-    expect(loadAlertState()).toBe('expanded')
-    localStorage.setItem(MISSABLE_ALERT_KEY, 'weird')
-    expect(loadAlertState()).toBe('expanded')
-    expect(loadAlertState(null)).toBe('expanded')
+  it('defaults to open and ignores unknown or legacy values', () => {
+    expect(loadAlertState()).toBe('open')
+    localStorage.setItem(MISSABLE_ALERT_KEY, 'minimized')
+    expect(loadAlertState()).toBe('open')
+    expect(loadAlertState(null)).toBe('open')
   })
 
   it('round-trips under its own key without touching progress or language', () => {
@@ -94,14 +94,14 @@ describe('missable alert preference', () => {
     saveLanguage('es')
     const before = localStorage.getItem(PROGRESS_KEY)
 
-    expect(saveAlertState('minimized')).toBe(true)
-    expect(loadAlertState()).toBe('minimized')
+    expect(saveAlertState('closed')).toBe(true)
+    expect(loadAlertState()).toBe('closed')
     expect(localStorage.getItem(PROGRESS_KEY)).toBe(before)
     expect(localStorage.getItem(LANGUAGE_KEY)).toBe('es')
     expect(loadProgress().state).toEqual(progress)
 
-    saveAlertState('expanded')
-    expect(loadAlertState()).toBe('expanded')
-    expect(saveAlertState('minimized', null)).toBe(false)
+    saveAlertState('open')
+    expect(loadAlertState()).toBe('open')
+    expect(saveAlertState('closed', null)).toBe(false)
   })
 })

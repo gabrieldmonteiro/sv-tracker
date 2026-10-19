@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { TROPHIES } from '@/data/trophies'
 import { useI18n } from '@/hooks/useLanguage'
+import { APP_TITLE } from '@/i18n'
 import { useProgress } from '@/hooks/useProgress'
 import { DEFAULT_FILTERS, filterTrophies, hasActiveFilters, type StatusFilter, type TrophyFilters } from '@/lib/filters'
 import { categoryProgress, isTrophyDone, overallProgress } from '@/lib/progress'
+import { loadAlertState, saveAlertState } from '@/lib/storage'
 import { CategoryProgress } from './CategoryProgress'
 import { EmptyState } from './EmptyState'
 import { FilterBar } from './FilterBar'
 import { LanguageSelector } from './LanguageSelector'
-import { MissableAlert, StorageNotice } from './Notices'
+import { MissableAlert, ReopenMissableAlert, StorageNotice } from './Notices'
 import { OverallProgress } from './ProgressSummary'
 import { ResetDialog } from './ResetDialog'
 import { Roadmap } from './Roadmap'
@@ -22,6 +24,11 @@ export function TrackerPage() {
   const { state, loadStatus, saveFailed, toggleTrophy, toggleSubtask, reset, dismissNotice } = useProgress()
   const [filters, setFilters] = useState<TrophyFilters>(DEFAULT_FILTERS)
   const [openId, setOpenId] = useState<string | null>(null)
+  const [alertClosed, setAlertClosedState] = useState(() => loadAlertState() === 'closed')
+  const setAlertClosed = useCallback((closed: boolean) => {
+    setAlertClosedState(closed)
+    saveAlertState(closed ? 'closed' : 'open')
+  }, [])
 
   const overall = useMemo(() => overallProgress(TROPHIES, state), [state])
   const byCategory = useMemo(() => categoryProgress(TROPHIES, state), [state])
@@ -47,11 +54,19 @@ export function TrackerPage() {
     <div className="min-h-dvh">
       <header className="border-b-4 border-wood/60 bg-card/80">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <h1 className="font-heading text-2xl leading-tight sm:text-3xl">{t('appTitle')}</h1>
-            <p className="text-sm text-muted-foreground">{t('appSubtitle')}</p>
-          </div>
+          <h1 className="flex items-center gap-2.5 font-heading text-2xl leading-tight sm:text-3xl">
+            <img
+              src={`${import.meta.env.BASE_URL}chicken.png`}
+              alt=""
+              aria-hidden="true"
+              width={48}
+              height={48}
+              className="size-10 shrink-0 [image-rendering:pixelated] sm:size-12"
+            />
+            {APP_TITLE}
+          </h1>
           <div className="flex flex-wrap items-center gap-3">
+            {alertClosed && <ReopenMissableAlert onOpen={() => setAlertClosed(false)} />}
             <LanguageSelector />
             <ResetDialog onConfirm={reset} disabled={!hasProgress} />
           </div>
@@ -71,7 +86,12 @@ export function TrackerPage() {
         </div>
 
         <div className="flex min-w-0 flex-col gap-4">
-          <MissableAlert onShow={() => setFilters({ ...DEFAULT_FILTERS, status: 'missable' })} />
+          {!alertClosed && (
+            <MissableAlert
+              onShow={() => setFilters({ ...DEFAULT_FILTERS, status: 'missable' })}
+              onClose={() => setAlertClosed(true)}
+            />
+          )}
           <FilterBar filters={filters} counts={counts} onChange={setFilters} />
           <p className="text-sm text-muted-foreground" aria-live="polite">
             {t('resultsCount', { count: visible.length, total: TROPHIES.length })}

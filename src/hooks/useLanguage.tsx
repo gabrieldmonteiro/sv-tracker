@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { DICTIONARIES, format, matchLanguage, type Dictionary, type Language, type UIStrings } from '@/i18n'
+import { APP_TITLE, DEFAULT_LANGUAGE, DICTIONARIES, format, type Dictionary, type Language, type UIStrings } from '@/i18n'
 import { loadLanguage, saveLanguage } from '@/lib/storage'
 
 interface I18nValue {
@@ -12,7 +12,7 @@ interface I18nValue {
 const I18nContext = createContext<I18nValue | null>(null)
 
 function initialLanguage(): Language {
-  return loadLanguage() ?? matchLanguage(typeof navigator === 'undefined' ? null : navigator.language)
+  return loadLanguage() ?? DEFAULT_LANGUAGE
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -20,7 +20,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = language
-    document.title = DICTIONARIES[language].ui.appTitle
+    document.title = APP_TITLE
   }, [language])
 
   const setLanguage = useCallback((next: Language) => {

@@ -13,9 +13,22 @@ export interface TrophyText {
 
 export type TrophyTexts = Record<string, TrophyText>
 
+export interface ItemText {
+  /** Official in-game name in this language (title of the localized wiki page when it exists). */
+  name: string
+  /** Wiki page title on the wiki for this language. */
+  wiki: string
+  /** How to obtain it, summarized from the wiki. Omitted when the wiki does not say. */
+  obtain?: string
+}
+
+export interface ItemTexts {
+  items: Record<string, ItemText>
+  /** Seed names used in the "grow from" line. */
+  seeds: Record<string, string>
+}
+
 export interface UIStrings {
-  appTitle: string
-  appSubtitle: string
   languageLabel: string
   overallProgress: string
   done: string
@@ -55,9 +68,8 @@ export interface UIStrings {
   missable: string
   missableAlertTitle: string
   missableAlertBody: string
-  missableAlertCollapsed: string
-  missableAlertMinimize: string
-  missableAlertExpand: string
+  missableAlertClose: string
+  missableAlertReopen: string
   conflictAlert: string
   buggy: string
   buggyHint: string
@@ -96,10 +108,21 @@ export interface UIStrings {
   footerStorage: string
   footerSource: string
   footerScope: string
+  itemsHeading: string
+  itemsMore: string
+  itemGrow: string
+  itemWiki: string
+  itemNoObtain: string
+  seasonSpring: string
+  seasonSummer: string
+  seasonFall: string
+  seasonWinter: string
+  listAnd: string
   categories: Record<CategoryId, string>
 }
 
 export interface Dictionary {
   ui: UIStrings
   trophies: TrophyTexts
+  items: ItemTexts
 }

@@ -1,8 +1,7 @@
-import { useState } from 'react'
-import { ChevronDown, ChevronUp, CircleAlert, TriangleAlert, X } from 'lucide-react'
+import { CircleAlert, TriangleAlert, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/hooks/useLanguage'
-import { loadAlertState, saveAlertState, type LoadStatus } from '@/lib/storage'
+import type { LoadStatus } from '@/lib/storage'
 
 export function StorageNotice({
   loadStatus,
@@ -41,42 +40,13 @@ export function StorageNotice({
   )
 }
 
-export function MissableAlert({ onShow }: { onShow: () => void }) {
-  const { t, dict } = useI18n()
-  const [minimized, setMinimized] = useState(() => loadAlertState() === 'minimized')
-
-  const toggle = () => {
-    const next = !minimized
-    setMinimized(next)
-    saveAlertState(next ? 'minimized' : 'expanded')
-  }
-
-  if (minimized) {
-    const summary = t('missableAlertCollapsed', {
-      first: dict.trophies['local-legend']?.name ?? '',
-      second: dict.trophies['joja-member']?.name ?? '',
-    })
-    return (
-      <aside
-        aria-label={t('missableAlertTitle')}
-        className="flex items-center gap-2 rounded-md border-2 border-destructive/40 bg-destructive/5 px-3 py-1.5 text-sm"
-      >
-        <TriangleAlert className="size-4 shrink-0 text-destructive" aria-hidden="true" />
-        <p title={summary} className="min-w-0 flex-1 truncate font-medium text-destructive">
-          {summary}
-        </p>
-        <Button type="button" variant="ghost" size="sm" onClick={toggle} aria-expanded={false} className="shrink-0">
-          <ChevronDown aria-hidden="true" />
-          <span className="max-sm:sr-only">{t('missableAlertExpand')}</span>
-        </Button>
-      </aside>
-    )
-  }
+export function MissableAlert({ onShow, onClose }: { onShow: () => void; onClose: () => void }) {
+  const { t } = useI18n()
 
   return (
     <aside
       aria-labelledby="missable-title"
-      className="flex flex-col gap-2 rounded-md border-2 border-destructive/40 bg-destructive/5 p-4 text-sm sm:flex-row sm:items-start"
+      className="relative flex flex-col gap-2 rounded-md border-2 border-destructive/40 bg-destructive/5 p-4 pr-11 text-sm sm:flex-row sm:items-start"
     >
       <TriangleAlert className="size-5 shrink-0 text-destructive" aria-hidden="true" />
       <div className="flex-1">
@@ -85,15 +55,37 @@ export function MissableAlert({ onShow }: { onShow: () => void }) {
         </h2>
         <p className="mt-0.5 text-foreground/80">{t('missableAlertBody')}</p>
       </div>
-      <div className="flex shrink-0 gap-2 self-start">
-        <Button type="button" variant="outline" size="sm" onClick={onShow} className="border-2">
-          {t('filterMissable')}
-        </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={toggle} aria-expanded={true}>
-          <ChevronUp aria-hidden="true" />
-          {t('missableAlertMinimize')}
-        </Button>
-      </div>
+      <Button type="button" variant="outline" size="sm" onClick={onShow} className="shrink-0 self-start border-2">
+        {t('filterMissable')}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={onClose}
+        aria-label={t('missableAlertClose')}
+        title={t('missableAlertClose')}
+        className="absolute top-2 right-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+      >
+        <X aria-hidden="true" />
+      </Button>
     </aside>
+  )
+}
+
+export function ReopenMissableAlert({ onOpen }: { onOpen: () => void }) {
+  const { t } = useI18n()
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="sm"
+      onClick={onOpen}
+      title={t('missableAlertReopen')}
+      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+    >
+      <TriangleAlert aria-hidden="true" />
+      <span className="max-sm:sr-only">{t('missableAlertReopen')}</span>
+    </Button>
   )
 }

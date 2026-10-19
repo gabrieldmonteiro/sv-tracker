@@ -1,14 +1,20 @@
 import type { Dictionary, Language } from './types'
+import { items as enItems } from './locales/en/items'
 import { trophies as enTrophies } from './locales/en/trophies'
 import { ui as enUi } from './locales/en/ui'
+import { items as esItems } from './locales/es/items'
 import { trophies as esTrophies } from './locales/es/trophies'
 import { ui as esUi } from './locales/es/ui'
+import { items as ptItems } from './locales/pt-BR/items'
 import { trophies as ptTrophies } from './locales/pt-BR/trophies'
 import { ui as ptUi } from './locales/pt-BR/ui'
 
-export type { Dictionary, Language, TrophyText, UIStrings } from './types'
+export type { Dictionary, ItemText, Language, TrophyText, UIStrings } from './types'
 
-export const DEFAULT_LANGUAGE: Language = 'en'
+/** Brand name; shown untranslated in every language. */
+export const APP_TITLE = 'Stardew Valley Tracker'
+
+export const DEFAULT_LANGUAGE: Language = 'pt-BR'
 
 export const LANGUAGES: { code: Language; label: string }[] = [
   { code: 'pt-BR', label: 'Português (Brasil)' },
@@ -17,21 +23,13 @@ export const LANGUAGES: { code: Language; label: string }[] = [
 ]
 
 export const DICTIONARIES: Record<Language, Dictionary> = {
-  en: { ui: enUi, trophies: enTrophies },
-  'pt-BR': { ui: ptUi, trophies: ptTrophies },
-  es: { ui: esUi, trophies: esTrophies },
+  en: { ui: enUi, trophies: enTrophies, items: enItems },
+  'pt-BR': { ui: ptUi, trophies: ptTrophies, items: ptItems },
+  es: { ui: esUi, trophies: esTrophies, items: esItems },
 }
 
 export function isLanguage(value: unknown): value is Language {
   return typeof value === 'string' && value in DICTIONARIES
-}
-
-/** Maps a browser locale such as "pt-PT" or "es-MX" to a supported language. */
-export function matchLanguage(locale: string | undefined | null): Language {
-  const lower = (locale ?? '').toLowerCase()
-  if (lower.startsWith('pt')) return 'pt-BR'
-  if (lower.startsWith('es')) return 'es'
-  return DEFAULT_LANGUAGE
 }
 
 /** Replaces `{name}` placeholders with values. Unknown placeholders are left as-is. */

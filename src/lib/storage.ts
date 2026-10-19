@@ -107,13 +107,13 @@ export function saveLanguage(language: Language, storage: Storage | null = getSt
   }
 }
 
-export type AlertState = 'expanded' | 'minimized'
+export type AlertState = 'open' | 'closed'
 
 export function loadAlertState(storage: Storage | null = getStorage()): AlertState {
   try {
-    return storage?.getItem(MISSABLE_ALERT_KEY) === 'minimized' ? 'minimized' : 'expanded'
+    return storage?.getItem(MISSABLE_ALERT_KEY) === 'closed' ? 'closed' : 'open'
   } catch {
-    return 'expanded'
+    return 'open'
   }
 }
 

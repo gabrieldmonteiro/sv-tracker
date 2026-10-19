@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronDown, Info, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { TROPHY_ITEMS } from '@/data/trophyItems'
 import type { TrophyDef } from '@/data/types'
 import { useI18n } from '@/hooks/useLanguage'
 import { isTrophyDone, subtaskProgress } from '@/lib/progress'
@@ -9,6 +10,7 @@ import type { ProgressState } from '@/lib/storage'
 import { cn } from '@/lib/utils'
 import { DependencyIndicator } from './DependencyIndicator'
 import { GradeIcon } from './GradeIcon'
+import { ItemChips } from './ItemChip'
 import { SubtaskList } from './SubtaskList'
 import { TrophyBadges } from './TrophyBadges'
 import { TrophyIcon } from './TrophyIcon'
@@ -58,6 +60,12 @@ export function TrophyCard({ trophy, state, onToggle, onToggleSubtask, onOpenDet
             </h3>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{text?.description}</p>
+          <ItemChips
+            ids={TROPHY_ITEMS[trophy.id]?.items ?? []}
+            limit={6}
+            onMore={() => onOpenDetails(trophy.id)}
+            className="mt-2"
+          />
 
           <div className="mt-3 flex flex-col gap-2.5">
             <TrophyBadges trophy={trophy} />

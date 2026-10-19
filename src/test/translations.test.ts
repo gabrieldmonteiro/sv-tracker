@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CATEGORY_IDS, TROPHIES } from '@/data/trophies'
-import { DICTIONARIES, LANGUAGES, format, matchLanguage, type Language } from '@/i18n'
+import { ITEMS, SEED_IDS } from '@/data/items'
+import { APP_TITLE, DEFAULT_LANGUAGE, DICTIONARIES, LANGUAGES, format, type Language } from '@/i18n'
 
 const languages = LANGUAGES.map((l) => l.code)
 const reference = DICTIONARIES.en
@@ -48,6 +49,28 @@ describe('translation completeness', () => {
         for (const label of Object.values(text.subtasks ?? {})) expect(label.trim(), trophy.id).not.toBe('')
       }
     })
+
+    it('names every item, links its wiki page and says how to get it', () => {
+      expect(Object.keys(dict.items.items).sort()).toEqual(ITEMS.map((item) => item.id).sort())
+      for (const item of ITEMS) {
+        const text = dict.items.items[item.id]
+        expect(text.name.trim(), item.id).not.toBe('')
+        expect(text.wiki.trim(), item.id).not.toBe('')
+        expect(Boolean(text.obtain?.trim()) || Boolean(item.grow?.length), `${item.id} has no obtain line`).toBe(true)
+        expect(Boolean(text.obtain), `${item.id}.obtain present in ${language} only`).toBe(
+          Boolean(reference.items.items[item.id].obtain),
+        )
+      }
+      expect(Object.keys(dict.items.seeds).sort()).toEqual([...SEED_IDS].sort())
+      for (const name of Object.values(dict.items.seeds)) expect(name.trim()).not.toBe('')
+    })
+  })
+
+  it('uses the official localized item names from the PT and ES wikis', () => {
+    expect(DICTIONARIES['pt-BR'].items.items.parsnip.name).toBe('Chirívia')
+    expect(DICTIONARIES.es.items.items.parsnip.name).toBe('Chirivía')
+    expect(DICTIONARIES['pt-BR'].items.items.stardrop.name).toBe('Fruta-estrela')
+    expect(DICTIONARIES.es.items.items['mermaids-pendant'].name).toBe('Colgante de sirena')
   })
 
   it('actually translates trophy names (not copies of English) where official names differ', () => {
@@ -64,10 +87,8 @@ describe('i18n helpers', () => {
     expect(format('{missing}', {})).toBe('{missing}')
   })
 
-  it('maps browser locales to supported languages', () => {
-    expect(matchLanguage('pt-PT')).toBe('pt-BR')
-    expect(matchLanguage('es-MX')).toBe('es')
-    expect(matchLanguage('fr-FR')).toBe('en')
-    expect(matchLanguage(undefined)).toBe('en')
+  it('defaults to Portuguese and keeps the brand title untranslated', () => {
+    expect(DEFAULT_LANGUAGE).toBe('pt-BR')
+    expect(APP_TITLE).toBe('Stardew Valley Tracker')
   })
 })

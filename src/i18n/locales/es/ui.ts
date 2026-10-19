@@ -1,8 +1,6 @@
 import type { UIStrings } from '../../types'
 
 export const ui: UIStrings = {
-  appTitle: 'Seguimiento de trofeos de Stardew Valley',
-  appSubtitle: 'Una lista para el platino basada en la guía de trofeos de PSNProfiles.',
   languageLabel: 'Idioma',
   overallProgress: 'Progreso general',
   done: 'Hechos',
@@ -43,9 +41,8 @@ export const ui: UIStrings = {
   missableAlertTitle: 'Trofeos perdibles',
   missableAlertBody:
     'Leyenda local y Miembro estrella de Joja Co. son los únicos perdibles, y se bloquean entre sí en una misma partida. La guía recomienda dos partidas o hacer una copia de seguridad antes de unirte a Joja.',
-  missableAlertCollapsed: 'Perdibles: {first} y {second} se excluyen',
-  missableAlertMinimize: 'Minimizar',
-  missableAlertExpand: 'Mostrar detalles',
+  missableAlertClose: 'Cerrar aviso',
+  missableAlertReopen: 'Mostrar aviso de perdibles',
   conflictAlert: 'Unirte a Joja convierte el centro cívico en un almacén para siempre en esa partida.',
   buggy: 'Con fallos',
   buggyHint: 'La guía indica que este trofeo puede no desbloquearse: lee las notas.',
@@ -88,6 +85,16 @@ export const ui: UIStrings = {
   footerStorage: 'El progreso solo se guarda en este navegador (localStorage). Sin cuenta ni servidor.',
   footerSource: 'Contenido basado en la guía de PSNProfiles de Jelloycat y SquidGeneral10.',
   footerScope: 'Incluye los 41 trofeos del juego base de esa guía. Los trofeos de la actualización 1.6 tienen una guía aparte.',
+  itemsHeading: 'Objetos',
+  itemsMore: '+{count} más',
+  itemGrow: 'Planta {seed} en {seasons} ({days} días).',
+  itemWiki: 'Abrir en la Wiki de Stardew Valley',
+  itemNoObtain: 'La wiki no indica cómo obtenerlo.',
+  seasonSpring: 'primavera',
+  seasonSummer: 'verano',
+  seasonFall: 'otoño',
+  seasonWinter: 'invierno',
+  listAnd: 'y',
   categories: {
     platinum: 'Platino',
     money: 'Dinero',

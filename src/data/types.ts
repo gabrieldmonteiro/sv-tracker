@@ -45,3 +45,21 @@ export interface TrophyDef {
   /** Stable subtask identifiers; labels live in the translation files. */
   subtasks?: string[]
 }
+
+export type Season = 'spring' | 'summer' | 'fall' | 'winter'
+
+export interface CropGrowth {
+  /** Seed id; its name is translated in the locale item files. */
+  seed: string
+  seasons: Season[]
+  days: number
+}
+
+export interface ItemDef {
+  /** Stable identifier; also the sprite file name in `public/items/`. */
+  id: string
+  /** English Stardew Valley Wiki page the facts come from. */
+  wiki: string
+  /** Growing facts from the wiki infobox, for crops. */
+  grow?: CropGrowth[]
+}

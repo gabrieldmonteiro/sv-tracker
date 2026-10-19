@@ -1,8 +1,6 @@
 import type { UIStrings } from '../../types'
 
 export const ui: UIStrings = {
-  appTitle: 'Stardew Valley Trophy Tracker',
-  appSubtitle: 'A platinum checklist based on the PSNProfiles trophy guide.',
   languageLabel: 'Language',
   overallProgress: 'Overall progress',
   done: 'Done',
@@ -43,9 +41,8 @@ export const ui: UIStrings = {
   missableAlertTitle: 'Missable trophies',
   missableAlertBody:
     'Local Legend and Joja Co. Member Of The Year are the only missables, and they lock each other out on one save. The guide recommends two playthroughs, or backing up your save before joining Joja.',
-  missableAlertCollapsed: 'Missable: {first} and {second} lock each other out',
-  missableAlertMinimize: 'Minimize',
-  missableAlertExpand: 'Show details',
+  missableAlertClose: 'Close warning',
+  missableAlertReopen: 'Show missable warning',
   conflictAlert: 'Joining Joja permanently turns the Community Center into a warehouse on that save.',
   buggy: 'Buggy',
   buggyHint: 'The guide reports this trophy may fail to unlock — read the notes.',
@@ -88,6 +85,16 @@ export const ui: UIStrings = {
   footerStorage: 'Progress is saved only in this browser (localStorage). No account, no server.',
   footerSource: 'Content based on the PSNProfiles guide by Jelloycat & SquidGeneral10.',
   footerScope: 'Covers the 41 base-game trophies in that guide. The 1.6 update trophies have a separate guide.',
+  itemsHeading: 'Items',
+  itemsMore: '+{count} more',
+  itemGrow: 'Grow from {seed} in {seasons} ({days} days).',
+  itemWiki: 'Open on the Stardew Valley Wiki',
+  itemNoObtain: 'The wiki does not say how to obtain it.',
+  seasonSpring: 'Spring',
+  seasonSummer: 'Summer',
+  seasonFall: 'Fall',
+  seasonWinter: 'Winter',
+  listAnd: 'and',
   categories: {
     platinum: 'Platinum',
     money: 'Money',

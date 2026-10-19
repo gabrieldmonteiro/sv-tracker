@@ -3,11 +3,13 @@ import { Bug, CheckCircle2, Circle, TriangleAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { TROPHY_BY_ID } from '@/data/trophies'
+import { TROPHY_ITEMS } from '@/data/trophyItems'
 import { useI18n } from '@/hooks/useLanguage'
 import { isTrophyDone, subtaskProgress } from '@/lib/progress'
 import type { ProgressState } from '@/lib/storage'
 import { DependencyIndicator } from './DependencyIndicator'
 import { GradeIcon } from './GradeIcon'
+import { ItemList } from './ItemChip'
 import { SubtaskList } from './SubtaskList'
 import { TrophyBadges } from './TrophyBadges'
 import { TrophyIcon } from './TrophyIcon'
@@ -26,6 +28,7 @@ export function TrophyDetailDialog({ trophyId, state, onClose, onOpen, onToggle,
   const trophy = trophyId ? TROPHY_BY_ID.get(trophyId) : undefined
   const text = trophy ? dict.trophies[trophy.id] : undefined
   const steps = trophy ? subtaskProgress(trophy, state) : null
+  const items = trophy ? (TROPHY_ITEMS[trophy.id]?.items ?? []) : []
 
   return (
     <Dialog open={Boolean(trophy && text)} onOpenChange={(open) => !open && onClose()}>
@@ -81,6 +84,12 @@ export function TrophyDetailDialog({ trophyId, state, onClose, onOpen, onToggle,
             {text.notes.length > 0 && (
               <Section title={t('notes')}>
                 <BulletList items={text.notes} />
+              </Section>
+            )}
+
+            {items.length > 0 && (
+              <Section title={t('itemsHeading')}>
+                <ItemList ids={items} />
               </Section>
             )}
           </div>

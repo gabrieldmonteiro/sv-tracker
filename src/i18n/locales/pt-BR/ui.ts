@@ -1,8 +1,6 @@
 import type { UIStrings } from '../../types'
 
 export const ui: UIStrings = {
-  appTitle: 'Rastreador de Troféus de Stardew Valley',
-  appSubtitle: 'Uma checklist de platina baseada no guia de troféus do PSNProfiles.',
   languageLabel: 'Idioma',
   overallProgress: 'Progresso geral',
   done: 'Concluídos',
@@ -43,9 +41,8 @@ export const ui: UIStrings = {
   missableAlertTitle: 'Troféus perdíveis',
   missableAlertBody:
     'Lenda Local e Joja Co. Membro do Ano são os únicos perdíveis, e um bloqueia o outro no mesmo save. O guia recomenda duas jogatinas ou fazer backup do save antes de entrar na Joja.',
-  missableAlertCollapsed: 'Perdíveis: {first} e {second} se excluem',
-  missableAlertMinimize: 'Minimizar',
-  missableAlertExpand: 'Mostrar detalhes',
+  missableAlertClose: 'Fechar aviso',
+  missableAlertReopen: 'Mostrar aviso de perdíveis',
   conflictAlert: 'Entrar na Joja transforma o Centro Comunitário em depósito para sempre naquele save.',
   buggy: 'Com bug',
   buggyHint: 'O guia relata que este troféu pode não desbloquear — leia as notas.',
@@ -88,6 +85,16 @@ export const ui: UIStrings = {
   footerStorage: 'O progresso fica salvo só neste navegador (localStorage). Sem conta, sem servidor.',
   footerSource: 'Conteúdo baseado no guia do PSNProfiles por Jelloycat e SquidGeneral10.',
   footerScope: 'Cobre os 41 troféus do jogo base desse guia. Os troféus da atualização 1.6 têm um guia separado.',
+  itemsHeading: 'Itens',
+  itemsMore: '+{count} itens',
+  itemGrow: 'Plante {seed} — {seasons}, {days} dias.',
+  itemWiki: 'Abrir na Wiki de Stardew Valley',
+  itemNoObtain: 'A wiki não diz como obter.',
+  seasonSpring: 'Primavera',
+  seasonSummer: 'Verão',
+  seasonFall: 'Outono',
+  seasonWinter: 'Inverno',
+  listAnd: 'e',
   categories: {
     platinum: 'Platina',
     money: 'Dinheiro',

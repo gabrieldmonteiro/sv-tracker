@@ -99,44 +99,107 @@ describe('App', () => {
     expect(localStorage.getItem(LANGUAGE_KEY)).toBe('en')
   })
 
-  it('minimizes the missable alert, persists it and leaves progress and language alone', async () => {
+  it('closes the missable alert, persists it and leaves progress and language alone', async () => {
     localStorage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, trophies: { greenhorn: true }, subtasks: {} }))
     const user = setup('en')
     const progressBefore = localStorage.getItem(PROGRESS_KEY)
+    expect(screen.queryByRole('button', { name: /Minimize/ })).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Minimize' }))
-    const collapsed = screen.getByRole('complementary', { name: 'Missable trophies' })
-    expect(collapsed).toHaveTextContent('Missable: Local Legend and Joja Co. Member Of The Year lock each other out')
+    await user.click(screen.getByRole('button', { name: 'Close warning' }))
     expect(screen.queryByRole('heading', { name: 'Missable trophies' })).not.toBeInTheDocument()
-    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('minimized')
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('closed')
     expect(localStorage.getItem(PROGRESS_KEY)).toBe(progressBefore)
     expect(localStorage.getItem(LANGUAGE_KEY)).toBe('en')
 
     await user.selectOptions(screen.getByLabelText('Language'), 'pt-BR')
-    expect(screen.getByRole('button', { name: 'Mostrar detalhes' })).toBeInTheDocument()
-    expect(screen.getByText('Perdíveis: Lenda Local e Joja Co. Membro do Ano se excluem')).toBeInTheDocument()
-    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('minimized')
+    expect(screen.getByRole('button', { name: 'Mostrar aviso de perdíveis' })).toBeInTheDocument()
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('closed')
 
     cleanup()
     setup('es')
-    expect(screen.getByRole('button', { name: 'Mostrar detalles' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Trofeos perdibles' })).not.toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Marcar «Principiante» como pendiente' })).toBeChecked()
 
-    await user.click(screen.getByRole('button', { name: 'Mostrar detalles' }))
+    await user.click(screen.getByRole('button', { name: 'Mostrar aviso de perdibles' }))
     expect(screen.getByRole('heading', { name: 'Trofeos perdibles' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Minimizar' })).toBeInTheDocument()
-    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('expanded')
+    expect(screen.getByRole('button', { name: 'Cerrar aviso' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Mostrar aviso de perdibles' })).not.toBeInTheDocument()
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('open')
     expect(localStorage.getItem(PROGRESS_KEY)).toBe(progressBefore)
   })
 
-  it('reset keeps the minimized alert preference', async () => {
-    localStorage.setItem(MISSABLE_ALERT_KEY, 'minimized')
+  it('reset keeps the closed alert preference', async () => {
+    localStorage.setItem(MISSABLE_ALERT_KEY, 'closed')
     localStorage.setItem(PROGRESS_KEY, JSON.stringify({ version: 1, trophies: { greenhorn: true }, subtasks: {} }))
     const user = setup()
     await user.click(screen.getByRole('button', { name: 'Reset progress' }))
     await user.click(await screen.findByRole('button', { name: 'Yes, reset' }))
-    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('minimized')
-    expect(screen.getByRole('button', { name: 'Show details' })).toBeInTheDocument()
+    expect(localStorage.getItem(MISSABLE_ALERT_KEY)).toBe('closed')
+    expect(screen.getByRole('button', { name: 'Show missable warning' })).toBeInTheDocument()
+  })
+
+  it('starts in Portuguese on a fresh visit, but a saved choice wins', () => {
+    render(<App />)
+    expect(document.documentElement.lang).toBe('pt-BR')
+    expect(screen.getByText('0 de 41 troféus')).toBeInTheDocument()
+    expect(localStorage.getItem(PROGRESS_KEY)).toBeNull()
+    cleanup()
+
+    localStorage.setItem(LANGUAGE_KEY, 'es')
+    render(<App />)
+    expect(document.documentElement.lang).toBe('es')
+    expect(screen.getByText('0 de 41 trofeos')).toBeInTheDocument()
+  })
+
+  it.each(['pt-BR', 'en', 'es'])('shows the untranslated title with the chicken first (%s)', (language) => {
+    setup(language)
+    const heading = screen.getByRole('heading', { level: 1 })
+    expect(heading.textContent).toBe('Stardew Valley Tracker')
+    const first = heading.firstElementChild
+    expect(first?.tagName).toBe('IMG')
+    expect(first).toHaveAttribute('src', '/chicken.png')
+    expect(heading.firstChild).toBe(first)
+    expect(heading.nextElementSibling?.tagName).not.toBe('P')
+    expect(heading.parentElement?.querySelector('p')).toBeNull()
+    expect(document.title).toBe('Stardew Valley Tracker')
+  })
+
+  it('shows item chips with sprites and how to obtain them', async () => {
+    const user = setup('en')
+    const card = screen.getByRole('article', { name: 'Full House' })
+    const chip = within(card).getByRole('button', { name: "Mermaid's Pendant" })
+    expect(chip.querySelector('img[data-item-sprite="mermaids-pendant"]')).toHaveAttribute('src', '/items/mermaids-pendant.png')
+    await user.click(chip)
+    expect(await screen.findByText('Old Mariner on the beach for 5,000g, on rainy days (6am–7pm).')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Open on the Stardew Valley Wiki/ })).toHaveAttribute(
+      'href',
+      "https://stardewvalleywiki.com/Mermaid's_Pendant",
+    )
+  })
+
+  it('shows crop sprites and growing facts in the Polyculture steps, in Portuguese', async () => {
+    const user = setup('pt-BR')
+    const card = screen.getByRole('article', { name: 'Policultura' })
+    await user.click(within(card).getByRole('button', { name: /Mostrar etapas/ }))
+    const steps = within(card).getAllByRole('checkbox').slice(1)
+    expect(steps).toHaveLength(28)
+    expect(card.querySelectorAll('img[data-item-sprite]').length).toBeGreaterThanOrEqual(28)
+    await user.click(within(card).getByRole('button', { name: 'Chirívia' }))
+    expect(await screen.findByText('Plante Sementes de chirívia — Primavera, 4 dias.')).toBeInTheDocument()
+  })
+
+  it('lists every trophy-level item with its obtain line in the detail view', async () => {
+    const user = setup('es')
+    const card = screen.getByRole('article', { name: 'Leyenda' })
+    await user.click(within(card).getByRole('button', { name: /\+7 más/ }))
+    const dialog = await screen.findByRole('dialog')
+    const entries = dialog.querySelectorAll('[data-item-entry]')
+    expect(entries).toHaveLength(13)
+    for (const entry of entries) {
+      expect(entry.querySelector('img[data-item-sprite]')).not.toBeNull()
+      expect(entry.querySelectorAll('p').length).toBeGreaterThanOrEqual(2)
+    }
+    expect(within(dialog).getByText('Pon cualquier fruta en un barril (7 días).')).toBeInTheDocument()
   })
 
   it('shows the official icon on every trophy row and in the detail view', async () => {

@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
-import { DICTIONARIES, matchLanguage } from '@/i18n'
+import { DEFAULT_LANGUAGE, DICTIONARIES } from '@/i18n'
 import { loadLanguage } from '@/lib/storage'
 
 interface State {
@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
 
   render() {
     if (!this.state.error) return this.props.children
-    const language = loadLanguage() ?? matchLanguage(navigator.language)
+    const language = loadLanguage() ?? DEFAULT_LANGUAGE
     const { ui } = DICTIONARIES[language]
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
